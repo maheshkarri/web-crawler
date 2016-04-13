@@ -2,7 +2,7 @@ package com.pramati.constants;
 
 public enum DAOTypes {
 
-	MAIL_INFO_DAO("com.pramati.webcrawler.service.impl.MailInfoDAOImpl");
+	MAIL_INFO_DAO("com.pramati.dao.impl.MailInfoDAOImpl");
 	
 	
 	private String abbrevation;

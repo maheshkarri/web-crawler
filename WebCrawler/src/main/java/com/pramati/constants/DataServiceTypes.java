@@ -2,7 +2,7 @@ package com.pramati.constants;
 
 public enum DataServiceTypes {
 
-	MAIL_INFO_SERVICE("com.pramati.webcrawler.service.impl.MailInfoServiceImpl");
+	MAIL_INFO_SERVICE("com.pramati.service.impl.MailInfoServiceImpl");
 	
 	
 	private String abbrevation;

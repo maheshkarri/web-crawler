@@ -17,7 +17,7 @@ public class ParserUtils {
 
 		try {
 			return Jsoup.connect(link).get();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error("invalid link " + link);
 			return null;
 		}
@@ -41,5 +41,9 @@ public class ParserUtils {
 	
 	public static String getAttributeValue(Element element , String attributeName){
 		return element.attr(attributeName);
+	}
+	
+	public static String getAbsoluteHrefUri(Element element){
+		return element.attr("abs:href");
 	}
 }
