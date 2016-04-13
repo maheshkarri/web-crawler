@@ -4,30 +4,32 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import com.pramati.beans.MonthMailsInfo;
 import com.pramati.schedular.worker.MonthMailsWorker;
+import com.pramati.service.MailInfoService;
 
 public class MonthMailsSchedular {
-	
-	List<MonthMailsInfo> monthMailsInfos = null;
-	
-	final int fixedThreadPoolSize = 3;
-	
+
+	List<String> mailLinks = null;
+
+	final int fixedThreadPoolSize = 10;
+
 	ThreadPoolExecutor executor = null;
-	
-	public MonthMailsSchedular(List<MonthMailsInfo> monthMailsInfos) {
-		this.monthMailsInfos = monthMailsInfos;
-		
-		executor = (ThreadPoolExecutor)Executors.newFixedThreadPool(fixedThreadPoolSize);
+
+	MailInfoService mailInfoService = null;
+
+	public MonthMailsSchedular(List<String> mailLinks) {
+		this.mailLinks = mailLinks;
+
+		executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(fixedThreadPoolSize);
+
 	}
-	
-	public void schedule(){
-		for (MonthMailsInfo monthMailsInfo : monthMailsInfos) {
-			MonthMailsWorker workerThread = new MonthMailsWorker(monthMailsInfo);
-			
-			executor.execute(workerThread);
+
+	public void schedule() {
+		for (String mailLink : mailLinks) {
+			MonthMailsWorker workerThread = new MonthMailsWorker(mailLink);
+
+			executor.submit(workerThread);
 		}
-		
-		
+
 	}
 }

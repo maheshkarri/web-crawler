@@ -35,6 +35,7 @@ private static Map<String , Object> servicePool = new HashMap<>();
 		}
 		
 		}catch(Exception e){
+			e.printStackTrace();
 			logger.error("Invalid serviceName "+serviceName);
 		}
 		
