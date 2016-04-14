@@ -23,15 +23,19 @@ public class MailInfoServiceImpl implements MailInfoService {
 	}
 
 	@Override
-	public List<String> getMonthWiseLinks(String monthLink) throws WebCrawlerException{
-		return mailInfoDAO.fetchMonthWiseLinks(monthLink);
+	public List<String> getMonthWiseLinks(String pageWiseMonthLink) throws WebCrawlerException{
+		return mailInfoDAO.fetchMonthWiseLinks(pageWiseMonthLink);
 	}
 
 	@Override
 	public MailInfo getMailInfo(String mailLink) throws WebCrawlerException{
 		return mailInfoDAO.fetchMailInfo(mailLink);
 	}
-	
+
+	@Override
+	public List<String> getPageWiseMonthLink(String monthLink) throws WebCrawlerException {
+		return mailInfoDAO.getPageWiseMonthLink(monthLink);
+	}
 	
 	
 }

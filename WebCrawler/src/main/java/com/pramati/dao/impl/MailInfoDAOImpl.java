@@ -50,10 +50,50 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 		return yearwiseLinksList;
 
 	}
+	
+	@Override
+	public List<String> getPageWiseMonthLink(String monthLink) throws WebCrawlerException {
+		List<String> pageWiseMonthLink = null;
+		
+		Document document = ParserUtils.getRootDocument(monthLink);
+
+		if (document != null) {
+			Element bodyTag = ParserUtils.getElement(document, "body").get(0);
+
+			Element monthwise = bodyTag.select("table[id *=msglist]").get(0);
+			
+			pageWiseMonthLink = new ArrayList<>();
+			pageWiseMonthLink.add(monthLink);
+
+			if (monthwise != null) {
+				Elements pagesTag = monthwise.select("th[class *=pages]");
+				if(pagesTag != null && pagesTag.size() >0){
+					Elements aTags = pagesTag.get(0).select("a[href]");
+					
+					if(aTags != null && aTags.size()>0){
+						for (Element aTag : aTags) {
+							if(!aTag.text().contains("Next"))
+							{	
+								pageWiseMonthLink.add(aTag.attr("abs:href"));
+								
+							}
+						}
+					}
+				}
+			}	
+		}else {
+			throw new WebCrawlerException("invalid mailLink " + monthLink);
+		}
+
+		
+		return pageWiseMonthLink;
+	}
+	
+	
 
 	@Override
-	public List<String> fetchMonthWiseLinks(String monthLink) throws WebCrawlerException {
-		Document document = ParserUtils.getRootDocument(monthLink);
+	public List<String> fetchMonthWiseLinks(String pageWiseMonthLink) throws WebCrawlerException {
+		Document document = ParserUtils.getRootDocument(pageWiseMonthLink);
 
 		List<String> monthWiseLinks = null;
 
@@ -62,6 +102,7 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 			Element bodyTag = ParserUtils.getElement(document, "body").get(0);
 
 			Element monthwise = bodyTag.select("table[id *=msglist]").get(0);
+			
 
 			if (monthwise != null) {
 				Elements messageLinks = monthwise.select("td[class *=subject]");
@@ -75,12 +116,12 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 						}
 					}
 				} else {
-					throw new WebCrawlerException("No messages found for " + monthLink);
+					throw new WebCrawlerException("No messages found for " + pageWiseMonthLink);
 				}
 			}
 
 		} else {
-			throw new WebCrawlerException("invalid monthlink " + monthLink);
+			throw new WebCrawlerException("invalid pageWiseMonthlink " + pageWiseMonthLink);
 		}
 
 		return monthWiseLinks;
@@ -115,4 +156,5 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 		return mailInfo;
 	}
 
+	
 }
