@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.pramati.beans.MailInfo;
 import com.pramati.exception.WebCrawlerException;
 import com.pramati.factory.ServiceFactory;
 import com.pramati.service.MailInfoService;
@@ -26,7 +27,10 @@ public class MonthMailsWorker implements Callable {
 	@Override
 	public Object call() {
 		try{
-			return mailInfoService.getMailInfo(mailLink);
+			MailInfo mailInfo = mailInfoService.getMailInfo(mailLink);
+			//logger.info(mailInfo.toString());
+			
+			return mailInfo;
 		}catch(Exception e){
 			return new WebCrawlerException(e.getMessage());
 		}
