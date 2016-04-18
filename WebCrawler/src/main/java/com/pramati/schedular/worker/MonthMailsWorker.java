@@ -10,7 +10,7 @@ import com.pramati.exception.WebCrawlerException;
 import com.pramati.factory.ServiceFactory;
 import com.pramati.service.MailInfoService;
 
-public class MonthMailsWorker implements Callable {
+public class MonthMailsWorker implements Callable<MailInfo> {
 
 	
 	
@@ -25,14 +25,14 @@ public class MonthMailsWorker implements Callable {
 	}
 
 	@Override
-	public Object call() {
+	public MailInfo call() throws WebCrawlerException {
 		try{
 			MailInfo mailInfo = mailInfoService.getMailInfo(mailLink);
 			//logger.info(mailInfo.toString());
 			
 			return mailInfo;
 		}catch(Exception e){
-			return new WebCrawlerException(e.getMessage());
+			throw new WebCrawlerException(e.getMessage());
 		}
 	}
 }

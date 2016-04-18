@@ -7,9 +7,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.pramati.beans.MailInfo;
+import com.pramati.beans.MonthMailsInfo;
 import com.pramati.factory.ServiceFactory;
 import com.pramati.schedular.MonthMailsSchedular;
 import com.pramati.service.MailInfoService;
+import com.pramati.service.MailsStorageService;
 
 public class WebCrawler {
 
@@ -25,38 +27,87 @@ public class WebCrawler {
 	}
 
 	private MailInfoService mailInfoService;
+	private MailsStorageService mailsStorageService;
 
 	public WebCrawler() {
 
 		try {
-			
-			Date startDate = new Date(); 
+
+			long startDate = System.currentTimeMillis();
 			mailInfoService = (MailInfoService) ServiceFactory
 					.getService(com.pramati.constants.DataServiceTypes.MAIL_INFO_SERVICE.name());
 
-			List<String> monthLinks = mailInfoService.getMonthLinks(mailListLink, requiredMailsOfYear);
+			mailsStorageService = (MailsStorageService) ServiceFactory
+					.getService(com.pramati.constants.DataServiceTypes.MAILS_STORAGE_SERVICE.name());
 
-			
-			for (String monthLink : monthLinks) {
+			List<MonthMailsInfo> monthLinks = mailInfoService.getMonthLinks(mailListLink, requiredMailsOfYear);
 
-				List<String> pageWiseMonthLink = mailInfoService.getPageWiseMonthLink(monthLink);
-				logger.info(pageWiseMonthLink.toString());
+			MonthMailsSchedular schedular = MonthMailsSchedular.getInstance();
 
-				if (pageWiseMonthLink != null && !pageWiseMonthLink.isEmpty()) {
+			for (MonthMailsInfo monthLink : monthLinks) {
 
-					for (String pageWiseLink : pageWiseMonthLink) {
+				boolean proceed = true;
 
-						List<String> mailLinks = mailInfoService.getMonthWiseLinks(pageWiseLink);
+				boolean isMailDirectoryExists = false;
 
-						MonthMailsSchedular schedular = new MonthMailsSchedular(mailLinks);
-						schedular.schedule();
+				if (!mailsStorageService.isMailDirectoryExists(monthLink.getMonth())) {
+					isMailDirectoryExists = mailsStorageService.createMailDirectory(monthLink.getMonth());
+
+				} else {
+					isMailDirectoryExists = true;
+				}
+
+				if (isMailDirectoryExists) {
+					int mailsCount = mailsStorageService.getMailsCount(monthLink.getMonth());
+					logger.info("Already downloaded Count " + mailsCount);
+					if (mailsCount == monthLink.getMsgCount()) {
+						proceed = false;
+					}
+				}
+
+				if (proceed) {
+
+					List<String> pageWiseMonthLink = mailInfoService.getPageWiseMonthLink(monthLink.getMonthLink());
+
+
+					if (pageWiseMonthLink != null && !pageWiseMonthLink.isEmpty()) {
+
+						for (String pageWiseLink : pageWiseMonthLink) {
+
+							List<MailInfo> monthWiseLinks = mailInfoService.getMonthWiseLinks(pageWiseLink);
+
+							for (MailInfo mailInfo : monthWiseLinks) {
+
+								String date = mailInfo.getDate();
+
+								boolean mailExistsInDirectory = mailsStorageService
+										.isMailExistsInDirectory(monthLink.getMonth(), date);
+
+								if (!mailExistsInDirectory) {
+									
+									
+									
+									mailInfo = schedular.schedule(mailInfo.getMailBodyLink());
+									
+									mailInfo.setDate(date);
+									
+									boolean createMailFile = mailsStorageService.createMailFile(monthLink.getMonth(), mailInfo);
+									if(createMailFile){
+										logger.info("created");
+									}
+								}
+							}
+
+						}
 					}
 				}
 			}
+
+			long end = System.currentTimeMillis();
+
+			logger.info("Total Running time "+((double)(end - startDate)/1000));
 			
-			Date end = new Date();
-			
-			System.out.println(end.getTime()-startDate.getTime());
+			schedular.shutdown();
 
 		} catch (Exception e) {
 			e.printStackTrace();

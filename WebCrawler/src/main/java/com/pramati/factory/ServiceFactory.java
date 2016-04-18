@@ -16,8 +16,6 @@ private static Map<String , Object> servicePool = new HashMap<>();
 		
 		Object service = null;
 		
-		logger.info("request came "+serviceName);
-		
 		
 		try{
 		

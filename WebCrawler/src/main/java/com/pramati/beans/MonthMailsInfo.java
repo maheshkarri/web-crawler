@@ -1,19 +1,18 @@
 package com.pramati.beans;
 
 public class MonthMailsInfo {
-	
 	private String month;
-	private String link;
+	private String monthLink;
 	private int msgCount;
 	
 	public MonthMailsInfo() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MonthMailsInfo(String month, String link, int msgCount) {
+	public MonthMailsInfo(String month, String monthLink, int msgCount) {
 		super();
 		this.month = month;
-		this.link = link;
+		this.monthLink = monthLink;
 		this.msgCount = msgCount;
 	}
 
@@ -25,12 +24,12 @@ public class MonthMailsInfo {
 		this.month = month;
 	}
 
-	public String getLink() {
-		return link;
+	public String getMonthLink() {
+		return monthLink;
 	}
 
-	public void setLink(String link) {
-		this.link = link;
+	public void setMonthLink(String monthLink) {
+		this.monthLink = monthLink;
 	}
 
 	public int getMsgCount() {
@@ -43,9 +42,8 @@ public class MonthMailsInfo {
 
 	@Override
 	public String toString() {
-		return "MonthMailsInfo [month=" + month + ", link=" + link + ", msgCount=" + msgCount + "]";
+		return "MonthMailsInfo [month=" + month + ", monthLink=" + monthLink + ", msgCount=" + msgCount + "]";
 	}
-	
 	
 	
 }

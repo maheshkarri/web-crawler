@@ -4,6 +4,7 @@ import java.util.List;
 import org.jsoup.nodes.Element;
 
 import com.pramati.beans.MailInfo;
+import com.pramati.beans.MonthMailsInfo;
 import com.pramati.dao.MailInfoDAO;
 import com.pramati.exception.WebCrawlerException;
 import com.pramati.factory.DAOFactory;
@@ -18,12 +19,12 @@ public class MailInfoServiceImpl implements MailInfoService {
 	}
 
 	@Override
-	public List<String> getMonthLinks(String link, int requiredYear) throws WebCrawlerException{
+	public List<MonthMailsInfo> getMonthLinks(String link, int requiredYear) throws WebCrawlerException{
 		return mailInfoDAO.fetchMonthLinks(link, requiredYear);
 	}
 
 	@Override
-	public List<String> getMonthWiseLinks(String pageWiseMonthLink) throws WebCrawlerException{
+	public List<MailInfo> getMonthWiseLinks(String pageWiseMonthLink) throws WebCrawlerException{
 		return mailInfoDAO.fetchMonthWiseLinks(pageWiseMonthLink);
 	}
 
