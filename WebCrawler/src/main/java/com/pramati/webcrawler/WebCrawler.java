@@ -1,7 +1,10 @@
 package com.pramati.webcrawler;
 
-import java.util.Date;
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +37,16 @@ public class WebCrawler {
 		try {
 
 			long startDate = System.currentTimeMillis();
+
+			logger.info("Web Crawler running started : " + Calendar.getInstance().getTime().toString());
+
 			mailInfoService = (MailInfoService) ServiceFactory
 					.getService(com.pramati.constants.DataServiceTypes.MAIL_INFO_SERVICE.name());
 
 			mailsStorageService = (MailsStorageService) ServiceFactory
 					.getService(com.pramati.constants.DataServiceTypes.MAILS_STORAGE_SERVICE.name());
+
+			logger.info("Mails Root Link " + mailListLink + "  year to download " + requiredMailsOfYear);
 
 			List<MonthMailsInfo> monthLinks = mailInfoService.getMonthLinks(mailListLink, requiredMailsOfYear);
 
@@ -50,6 +58,8 @@ public class WebCrawler {
 
 				boolean isMailDirectoryExists = false;
 
+				logger.info("Processing for the month " + monthLink.getMonth());
+
 				if (!mailsStorageService.isMailDirectoryExists(monthLink.getMonth())) {
 					isMailDirectoryExists = mailsStorageService.createMailDirectory(monthLink.getMonth());
 
@@ -59,7 +69,8 @@ public class WebCrawler {
 
 				if (isMailDirectoryExists) {
 					int mailsCount = mailsStorageService.getMailsCount(monthLink.getMonth());
-					logger.info("Already downloaded Count " + mailsCount);
+					logger.info("Already downloaded Count " + mailsCount + " Acutal Mails Count "
+							+ monthLink.getMsgCount());
 					if (mailsCount == monthLink.getMsgCount()) {
 						proceed = false;
 					}
@@ -67,33 +78,51 @@ public class WebCrawler {
 
 				if (proceed) {
 
-					List<String> pageWiseMonthLink = mailInfoService.getPageWiseMonthLink(monthLink.getMonthLink());
-
+					Map<Integer, String> pageWiseMonthLink = mailInfoService
+							.getPageWiseMonthLink(monthLink.getMonthLink());
 
 					if (pageWiseMonthLink != null && !pageWiseMonthLink.isEmpty()) {
+						logger.info("Total Pages " + pageWiseMonthLink.size());
+						for (Map.Entry<Integer, String> entry : pageWiseMonthLink.entrySet()) {
 
-						for (String pageWiseLink : pageWiseMonthLink) {
+							logger.info("Processing Page " + entry.getKey());
 
-							List<MailInfo> monthWiseLinks = mailInfoService.getMonthWiseLinks(pageWiseLink);
+							List<MailInfo> monthWiseLinks = mailInfoService.getMonthWiseLinks(entry.getValue());
 
-							for (MailInfo mailInfo : monthWiseLinks) {
+							if (monthWiseLinks != null && !monthWiseLinks.isEmpty()) {
+								
+								int totalMailsPerPage = monthWiseLinks.size();
+								
+								int mailsToBeDownload = totalMailsPerPage;
+								
+								logger.info("Total Mails for Page "+totalMailsPerPage);
+								
+								while(mailsToBeDownload > 0){
+									if(mailsToBeDownload > 20){
+										mailsToBeDownload -= 20;
+									}else{
+										mailsToBeDownload = 0;
+									}
+								}
+								
+								for (MailInfo mailInfo : monthWiseLinks) {
 
-								String date = mailInfo.getDate();
+									String date = mailInfo.getDate();
 
-								boolean mailExistsInDirectory = mailsStorageService
-										.isMailExistsInDirectory(monthLink.getMonth(), date);
+									boolean mailExistsInDirectory = mailsStorageService
+											.isMailExistsInDirectory(monthLink.getMonth(), date);
 
-								if (!mailExistsInDirectory) {
-									
-									
-									
-									mailInfo = schedular.schedule(mailInfo.getMailBodyLink());
-									
-									mailInfo.setDate(date);
-									
-									boolean createMailFile = mailsStorageService.createMailFile(monthLink.getMonth(), mailInfo);
-									if(createMailFile){
-										logger.info("created");
+									if (!mailExistsInDirectory) {
+
+										mailInfo = schedular.schedule(mailInfo.getMailBodyLink());
+
+										mailInfo.setDate(date);
+
+										boolean createMailFile = mailsStorageService
+												.createMailFile(monthLink.getMonth(), mailInfo);
+										if (createMailFile) {
+											logger.info("created");
+										}
 									}
 								}
 							}
@@ -105,8 +134,8 @@ public class WebCrawler {
 
 			long end = System.currentTimeMillis();
 
-			logger.info("Total Running time "+((double)(end - startDate)/1000));
-			
+			logger.info("Total Running time " + ((double) (end - startDate) / 1000));
+
 			schedular.shutdown();
 
 		} catch (Exception e) {

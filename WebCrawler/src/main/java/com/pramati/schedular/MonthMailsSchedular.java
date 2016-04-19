@@ -16,7 +16,7 @@ import com.pramati.service.MailInfoService;
 
 public class MonthMailsSchedular {
 
-	final int fixedThreadPoolSize = 20;
+	final int fixedThreadPoolSize = 5;
 
 	ThreadPoolExecutor executor = null;
 

@@ -27,8 +27,8 @@ public class MonthMailsWorker implements Callable<MailInfo> {
 	@Override
 	public MailInfo call() throws WebCrawlerException {
 		try{
+			
 			MailInfo mailInfo = mailInfoService.getMailInfo(mailLink);
-			//logger.info(mailInfo.toString());
 			
 			return mailInfo;
 		}catch(Exception e){
