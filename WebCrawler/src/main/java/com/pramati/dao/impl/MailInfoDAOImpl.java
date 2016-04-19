@@ -1,7 +1,9 @@
 package com.pramati.dao.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,8 +23,7 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 
 	@Override
 	public List<MonthMailsInfo> fetchMonthLinks(String link, int requiredYear) throws WebCrawlerException {
-		logger.info(link + " " + requiredYear);
-
+		
 		List<MonthMailsInfo> yearwiseLinksList = null;
 		Document document = ParserUtils.getRootDocument(link);
 
@@ -85,6 +86,7 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 			}
 
 		} else {
+			logger.error("invalid link " + link);
 			throw new WebCrawlerException("invalid link " + link);
 		}
 
@@ -93,8 +95,8 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 	}
 
 	@Override
-	public List<String> getPageWiseMonthLink(String monthLink) throws WebCrawlerException {
-		List<String> pageWiseMonthLink = null;
+	public Map<Integer , String> getPageWiseMonthLink(String monthLink) throws WebCrawlerException {
+		Map<Integer , String> pageWiseMonthLink = null;
 
 		Document document = ParserUtils.getRootDocument(monthLink);
 
@@ -103,8 +105,8 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 
 			Element monthwise = bodyTag.select("table[id *=msglist]").get(0);
 
-			pageWiseMonthLink = new ArrayList<>();
-			pageWiseMonthLink.add(monthLink);
+			pageWiseMonthLink = new HashMap<>();
+			pageWiseMonthLink.put(0 , monthLink);
 
 			if (monthwise != null) {
 				Elements pagesTag = monthwise.select("th[class *=pages]");
@@ -112,9 +114,11 @@ public class MailInfoDAOImpl implements MailInfoDAO {
 					Elements aTags = pagesTag.get(0).select("a[href]");
 
 					if (aTags != null && aTags.size() > 0) {
+						int count = 1;
 						for (Element aTag : aTags) {
 							if (!aTag.text().contains("Next")) {
-								pageWiseMonthLink.add(aTag.attr("abs:href"));
+								pageWiseMonthLink.put(count , aTag.attr("abs:href"));
+								count++;
 
 							}
 						}

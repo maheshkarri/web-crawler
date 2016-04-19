@@ -1,5 +1,6 @@
 package com.pramati.service.impl;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.nodes.Element;
 
@@ -34,7 +35,7 @@ public class MailInfoServiceImpl implements MailInfoService {
 	}
 
 	@Override
-	public List<String> getPageWiseMonthLink(String monthLink) throws WebCrawlerException {
+	public Map<Integer , String> getPageWiseMonthLink(String monthLink) throws WebCrawlerException {
 		return mailInfoDAO.getPageWiseMonthLink(monthLink);
 	}
 	

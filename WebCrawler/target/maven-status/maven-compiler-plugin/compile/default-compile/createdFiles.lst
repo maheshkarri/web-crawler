@@ -20,4 +20,3 @@ com/pramati/utils/Utils.class
 com/pramati/webcrawler/WebCrawler.class
 com/pramati/dao/MailsStorageDAO.class
 com/pramati/factory/DAOFactory.class
-com/pramati/webcrawler/parser/MailParser.class
